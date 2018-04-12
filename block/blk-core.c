@@ -671,7 +671,7 @@ int blk_queue_enter(struct request_queue *q, gfp_t gfp)
 		int ret;
 
 #ifndef CONFIG_BLK_MQ_REFCOUNT
-		if (likely(percpu_ref_tryget_live(&q->q_usage_counter)))
+		if (percpu_ref_tryget_live(&q->q_usage_counter))
 			return 0;
 #else
 		if (blk_ref_tryget_live(&q->q_usage_counter))
@@ -680,13 +680,11 @@ int blk_queue_enter(struct request_queue *q, gfp_t gfp)
 		if (!gfpflags_allow_blocking(gfp))
 			return -EBUSY;
 
-		ret = wait_event_interruptible(q->mq_freeze_wq,
-				!atomic_read(&q->mq_freeze_depth) ||
-				blk_queue_dying(q));/*lint !e666*/
+		wait_event(q->mq_freeze_wq,
+			   !atomic_read(&q->mq_freeze_depth) ||
+			   blk_queue_dying(q));
 		if (blk_queue_dying(q))
 			return -ENODEV;
-		if (ret)
-			return ret;
 	}
 }
 
