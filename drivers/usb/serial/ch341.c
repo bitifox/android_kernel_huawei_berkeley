@@ -117,6 +117,21 @@ static int ch341_control_in(struct usb_device *dev,
 			    USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
 			    value, index, buf, bufsize, DEFAULT_TIMEOUT);
 	return r;
+
+	if (r < (int)bufsize) {
+		if (r >= 0) {
+			dev_err(&dev->dev,
+				"short control message received (%d < %u)\n",
+				r, bufsize);
+			r = -EIO;
+		}
+
+		dev_err(&dev->dev, "failed to receive control message: %d\n",
+			r);
+		return r;
+	}
+
+	return 0;
 }
 
 static int ch341_set_baudrate(struct usb_device *dev,
