@@ -91,19 +91,6 @@ static int lpm3_core_reg_prase(char *dir_path, s8 *file_name, u64 log_addr, u32 
 static int lpm3_nvic_reg_prase(char *dir_path, s8 *file_name, u64 log_addr, u32 log_len);
 static int lpm3_log_prase(char *dir_path, s8 *file_name, u64 log_addr, u32 log_len);
 
-log_lpm3_cleartext_t g_lpm3_cleartext[] = {
-		{"HEAD_INFO.txt", LPM3_LOG_OFFSET(M3_RDR_SYS_CONTEXT_HEAD_ADDR), M3_RDR_SYS_CONTEXT_HEAD_SIZE, head_info_prase},
-		{"LPM3_CORE_REGS.txt", LPM3_LOG_OFFSET(M3_RDR_SYS_CONTEXT_M3_COREREG_ADDR), M3_RDR_SYS_CONTEXT_M3_COREREG_SIZE, lpm3_core_reg_prase},
-		{"LPM3_EXC_SPECIAL.txt", LPM3_LOG_OFFSET(M3_RDR_SYS_CONTEXT_EXC_SPECIAL_ADDR), M3_RDR_SYS_CONTEXT_EXC_SPECIAL_SIZE, lpm3_exc_special_prase},
-		{"LPM3_NVIC_REGS.txt", LPM3_LOG_OFFSET(M3_RDR_SYS_CONTEXT_M3_NVICREG_ADDR), M3_RDR_SYS_CONTEXT_M3_NVICREG_SIZE, lpm3_nvic_reg_prase},
-		{"CRG_PERI.txt", LPM3_LOG_OFFSET(M3_RDR_CRG_PERI_ADDR), M3_RDR_CRG_PERI_SIZE, system_reg_prase},
-		{"SCTRL.txt", LPM3_LOG_OFFSET(M3_RDR_SCTRL_ADDR), M3_RDR_SCTRL_SIZE, system_reg_prase},
-		{"PMCTRL.txt", LPM3_LOG_OFFSET(M3_RDR_PMCTRL_ADDR), M3_RDR_PMCTRL_SIZE, system_reg_prase},
-		{"PCTRL.txt", LPM3_LOG_OFFSET(M3_RDR_PCTRL_ADDR), M3_RDR_PCTRL_SIZE, system_reg_prase},
-		{"LPM3_LOG.txt", LPM3_LOG_OFFSET(M3_RDR_SYS_CONTEXT_M3_LOG_ADDR), M3_RDR_SYS_CONTEXT_M3_LOG_SIZE, lpm3_log_prase},
-		{"RUNTIME_VAR.txt", LPM3_LOG_OFFSET(M3_RDR_SYS_CONTEXT_RUNTIME_VAR_ADDR), M3_RDR_SYS_CONTEXT_RUNTIME_VAR_SIZE, system_reg_prase},
-};
-
 /*lpm3 log cleartext -- head info*/
 #define PC_LO_PWR_DOWN				(0x5CC55CC5)
 #define PC_HI_PWR_DOWN				(0xC55CC55C)
@@ -600,6 +587,19 @@ static int rdr_hisi_lpm3_cleartext_print(char *dir_path, u64 log_addr, u32 log_l
 	u32 log_len_prase;
 	s8 *log_name_creat;
 	s32 ret = 0;
+log_lpm3_cleartext_t g_lpm3_cleartext[] = {
+                {"HEAD_INFO.txt", LPM3_LOG_OFFSET(M3_RDR_SYS_CONTEXT_HEAD_ADDR), M3_RDR_SYS_CONTEXT_HEAD_SIZE, head_info_prase},
+                {"LPM3_CORE_REGS.txt", LPM3_LOG_OFFSET(M3_RDR_SYS_CONTEXT_M3_COREREG_ADDR), M3_RDR_SYS_CONTEXT_M3_COREREG_SIZE, lpm3_core_reg_prase},
+                {"LPM3_EXC_SPECIAL.txt", LPM3_LOG_OFFSET(M3_RDR_SYS_CONTEXT_EXC_SPECIAL_ADDR), M3_RDR_SYS_CONTEXT_EXC_SPECIAL_SIZE, lpm3_exc_special_prase},
+                {"LPM3_NVIC_REGS.txt", LPM3_LOG_OFFSET(M3_RDR_SYS_CONTEXT_M3_NVICREG_ADDR), M3_RDR_SYS_CONTEXT_M3_NVICREG_SIZE, lpm3_nvic_reg_prase},
+                {"CRG_PERI.txt", LPM3_LOG_OFFSET(M3_RDR_CRG_PERI_ADDR), M3_RDR_CRG_PERI_SIZE, system_reg_prase},
+                {"SCTRL.txt", LPM3_LOG_OFFSET(M3_RDR_SCTRL_ADDR), M3_RDR_SCTRL_SIZE, system_reg_prase},
+                {"PMCTRL.txt", LPM3_LOG_OFFSET(M3_RDR_PMCTRL_ADDR), M3_RDR_PMCTRL_SIZE, system_reg_prase},
+                {"PCTRL.txt", LPM3_LOG_OFFSET(M3_RDR_PCTRL_ADDR), M3_RDR_PCTRL_SIZE, system_reg_prase},
+                {"LPM3_LOG.txt", LPM3_LOG_OFFSET(M3_RDR_SYS_CONTEXT_M3_LOG_ADDR), M3_RDR_SYS_CONTEXT_M3_LOG_SIZE, lpm3_log_prase},
+                {"RUNTIME_VAR.txt", LPM3_LOG_OFFSET(M3_RDR_SYS_CONTEXT_RUNTIME_VAR_ADDR), M3_RDR_SYS_CONTEXT_RUNTIME_VAR_SIZE, system_reg_prase},
+};
+
 
 	if (IS_ERR_OR_NULL(dir_path) || IS_ERR_OR_NULL((void *)log_addr)) {
 		printk(KERN_ERR "%s() error:dir_path 0x%pK log_addr 0x%pK.\n", __func__, dir_path, (void *)log_addr);
