@@ -517,6 +517,52 @@ static const struct dmi_system_id __initconst i8042_dmi_nomux_table[] = {
 	{ }
 };
 
+static const struct dmi_system_id i8042_dmi_forcemux_table[] __initconst = {
+	{
+		/*
+		 * Sony Vaio VGN-CS series require MUX or the touch sensor
+		 * buttons will disturb touchpad operation
+		 */
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Sony Corporation"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "VGN-CS"),
+		},
+	},
+	{ }
+};
+
+/*
+ * On some Asus laptops, just running self tests cause problems.
+ */
+static const struct dmi_system_id i8042_dmi_noselftest_table[] = {
+	{
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "A455LD"),
+		},
+	},
+	{
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "K401LB"),
+		},
+	},
+	{
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+			DMI_MATCH(DMI_PRODUCT_NAME, "K501LB"),
+		},
+	},
+	{
+		/* TUXEDO BU1406 */
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Notebook"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "N24_25BU"),
+		},
+	},
+	{ }
+};
+
 static const struct dmi_system_id __initconst i8042_dmi_reset_table[] = {
 	{
 		/* MSI Wind U-100 */
@@ -593,6 +639,20 @@ static const struct dmi_system_id __initconst i8042_dmi_reset_table[] = {
 		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
 			DMI_MATCH(DMI_PRODUCT_NAME, "20046"),
+		},
+	},
+	{
+		/* Lenovo ThinkPad L460 */
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+			DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad L460"),
+		},
+	},
+	{
+		/* Clevo P650RS, 650RP6, Sager NP8152-S, and others */
+		.matches = {
+			DMI_MATCH(DMI_SYS_VENDOR, "Notebook"),
+			DMI_MATCH(DMI_PRODUCT_NAME, "P65xRP"),
 		},
 	},
 	{ }
@@ -1091,6 +1151,9 @@ static int __init i8042_platform_init(void)
 
 	if (dmi_check_system(i8042_dmi_nomux_table))
 		i8042_nomux = true;
+
+	if (dmi_check_system(i8042_dmi_forcemux_table))
+		i8042_nomux = false;
 
 	if (dmi_check_system(i8042_dmi_notimeout_table))
 		i8042_notimeout = true;

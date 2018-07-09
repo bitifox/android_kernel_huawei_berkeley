@@ -1089,7 +1089,7 @@ void tcp_v6_reqsk_send_ack(const struct sock *sk, struct sk_buff *skb,
 #endif
 			req->rsk_rcv_wnd >> inet_rsk(req)->rcv_wscale,
 			tcp_time_stamp, req->ts_recent, sk->sk_bound_dev_if,
-			tcp_v6_md5_do_lookup(sk, &ipv6_hdr(skb)->daddr),
+			tcp_v6_md5_do_lookup(sk, &ipv6_hdr(skb)->saddr),
 #ifdef CONFIG_MPTCP
 			0,
 #endif
@@ -1604,6 +1604,11 @@ process:
 		if (tcp_v6_inbound_md5_hash(sk, skb)) {
 			reqsk_put(req);
 			goto discard_it;
+		}
+
+		if (tcp_checksum_complete(skb)) {
+			reqsk_put(req);
+			goto csum_error;
 		}
 #ifdef CONFIG_MPTCP
 		if (unlikely(sk->sk_state != TCP_LISTEN && !is_meta_sk(sk))) {

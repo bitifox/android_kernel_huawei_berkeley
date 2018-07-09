@@ -335,24 +335,23 @@ static loff_t ashmem_llseek(struct file *file, loff_t offset, int origin)
 	mutex_lock(&asma->lock);
 
 	if (asma->size == 0) {
-		ret = -EINVAL;
-		goto out;
+		mutex_unlock(&asma->lock);
+		return -EINVAL;
 	}
 
 	if (!asma->file) {
-		ret = -EBADF;
-		goto out;
+		mutex_unlock(&asma->lock);
+		return -EBADF;
 	}
+
+	mutex_unlock(&asma->lock);
 
 	ret = vfs_llseek(asma->file, offset, origin);
 	if (ret < 0)
-		goto out;
+		return ret;
 
 	/** Copy f_pos from backing file, since f_ops->llseek() sets it */
 	file->f_pos = asma->file->f_pos;
-
-out:
-	mutex_unlock(&asma->lock);
 	return ret;
 }
 
@@ -713,29 +712,29 @@ static int ashmem_pin_unpin(struct ashmem_area *asma, unsigned long cmd,
 	size_t pgstart, pgend;
 	int ret = -EINVAL;
 
-	if (unlikely(!asma->file))
-		return -EINVAL;
-
 	if (unlikely(copy_from_user(&pin, p, sizeof(pin))))
 		return -EFAULT;
+
+	mutex_lock(&asma->lock);
+
+	if (unlikely(!asma->file))
+		goto out_unlock;
 
 	/* per custom, you can pass zero for len to mean "everything onward" */
 	if (!pin.len)
 		pin.len = PAGE_ALIGN(asma->size) - pin.offset;
 
 	if (unlikely((pin.offset | pin.len) & ~PAGE_MASK))
-		return -EINVAL;
+		goto out_unlock;
 
 	if (unlikely(((__u32)-1) - pin.offset < pin.len))
-		return -EINVAL;
+		goto out_unlock;
 
 	if (unlikely(PAGE_ALIGN(asma->size) < pin.offset + pin.len))
-		return -EINVAL;
+		goto out_unlock;
 
 	pgstart = pin.offset / PAGE_SIZE;
 	pgend = pgstart + (pin.len / PAGE_SIZE) - 1;
-
-	mutex_lock(&asma->lock);
 
 	switch (cmd) {
 	case ASHMEM_PIN:
@@ -749,6 +748,7 @@ static int ashmem_pin_unpin(struct ashmem_area *asma, unsigned long cmd,
 		break;
 	}
 
+out_unlock:
 	mutex_unlock(&asma->lock);
 
 	return ret;

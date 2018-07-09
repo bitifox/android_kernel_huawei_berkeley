@@ -960,6 +960,8 @@ void xhci_free_virt_device(struct xhci_hcd *xhci, int slot_id)
 	if (dev->out_ctx)
 		xhci_free_container_ctx(xhci, dev->out_ctx);
 
+	if (dev->udev && dev->udev->slot_id)
+		dev->udev->slot_id = 0;
 	kfree(xhci->devs[slot_id]);
 	xhci->devs[slot_id] = NULL;
 }
@@ -983,7 +985,7 @@ void xhci_free_virt_devices_depth_first(struct xhci_hcd *xhci, int slot_id)
 
 	if (vdev->real_port == 0 ||
 			vdev->real_port > HCS_MAX_PORTS(xhci->hcs_params1)) {
-		xhci_err(xhci, "Bad vdev->real_port.\n");
+		xhci_dbg(xhci, "Bad vdev->real_port.\n");
 		goto out;
 	}
 
@@ -1071,7 +1073,8 @@ int xhci_alloc_virt_device(struct xhci_hcd *xhci, int slot_id,
 
 	return 1;
 fail:
-
+	if (dev->eps[0].ring)
+		xhci_ring_free(xhci, dev->eps[0].ring);
 	if (dev->in_ctx)
 		xhci_free_container_ctx(xhci, dev->in_ctx);
 	if (dev->out_ctx)
