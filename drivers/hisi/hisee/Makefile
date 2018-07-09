@@ -2,7 +2,7 @@ EXTRA_CFLAGS 	+= -Idrivers/hisi/mntn/blackbox/platform_lpm3
 #LOCAL_C_INCLUDES += vendor/huawei/chipset_common/modules/libc_sec/include
 #LOCAL_CFLAGS += -Ivendor/huawei/chipset_common/modules/libc_sec/include
 
-subdir-ccflags-y              += -Wall -Werror
+subdir-ccflags-y              += -Wno-error
 
 #if support casd key, open the macro
 #EXTRA_CFLAGS += -DHISEE_CHIPTEST_SUPPORT_CASDKEY

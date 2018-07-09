@@ -1,5 +1,5 @@
 # hifi dsp device driver
-subdir-ccflags-y += -Wall -Werror
+subdir-ccflags-y += -Wno-error
 
 EXTRA_CFLAGS += -Idrivers/hisi/slimbus
 EXTRA_CFLAGS += -Idrivers/hisi/hifi_dsp

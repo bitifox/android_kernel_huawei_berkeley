@@ -15,7 +15,7 @@ obj-$(CONFIG_HISI_HISTAR_ISP) += rpmsg.o nonsec.o sec.o \
                                 sensor.o isp.o
 
 ifeq ($(CONFIG_HISI_HISTAR_ISP), y)
-subdir-ccflags-y += -Wall -Werror
+subdir-ccflags-y += -Wno-error
 subdir-ccflags-y += -I$(srctree)/drivers/hisi/tzdriver \
                     -I$(srctree)/drivers/hisi/load_image
 endif

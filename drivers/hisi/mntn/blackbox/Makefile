@@ -1,4 +1,4 @@
-ccflags-y += -Wall -Werror
+ccflags-y += -Wno-error
 EXTRA_CFLAGS += -Idrivers/hisi/tzdriver
 
 obj-$(CONFIG_HISI_BB) += rdr_core.o
