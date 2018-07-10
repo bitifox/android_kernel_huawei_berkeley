@@ -125,13 +125,12 @@ static noinline int smc_send(uint32_t cmd, phys_addr_t cmd_addr,
 	do {
 		asm volatile(
 				__asmeq("%0", "x0")
-				__asmeq("%1", "x0")
-				__asmeq("%2", "x1")
-				__asmeq("%3", "x2")
-				__asmeq("%4", "x3")
+				__asmeq("%1", "x1")
+				__asmeq("%2", "x2")
+				__asmeq("%3", "x3")
 				"smc	#0\n"
 				: "+r" (x0)
-				: "r" (x0), "r" (x1), "r" (x2), "r" (x3));
+				: "r" (x1), "r" (x2), "r" (x3));
 	} while (x0 == TSP_REQUEST && wait);
 
 	return x0;
