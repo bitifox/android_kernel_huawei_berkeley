@@ -415,6 +415,18 @@ static ssize_t qeth_dev_layer2_store(struct device *dev,
 			card->discipline->remove(card->gdev);
 			qeth_core_free_discipline(card);
 		}
+
+	if (card->info.type == QETH_CARD_TYPE_OSM) {
+		/* fixed layer, can't switch */
+		rc = -EOPNOTSUPP;
+		goto out;
+	}
+
+	card->info.mac_bits = 0;
+	if (card->discipline) {
+		card->discipline->remove(card->gdev);
+		qeth_core_free_discipline(card);
+		card->options.layer2 = -1;
 	}
 
 	rc = qeth_core_load_discipline(card, newdis);
