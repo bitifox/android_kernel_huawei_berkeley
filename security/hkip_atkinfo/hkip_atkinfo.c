@@ -187,7 +187,8 @@ static void clear_hkip_counter_timer(unsigned long data)
 	pr_info("%s: reset hkip counter.\n", MODULE_NAME);
 	clear_hkip_monitorlog_reset_counters();
 
-	mod_timer(&atkinfo->timer, jiffies + msecs_to_jiffies((const unsigned int)atkinfo->cycle_time));
+	if (atkinfo->cycle_time)
+		mod_timer(&atkinfo->timer, jiffies + msecs_to_jiffies((const unsigned int)atkinfo->cycle_time));
 }
 
 /*
