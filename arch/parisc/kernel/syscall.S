@@ -1,6 +1,6 @@
-/* 
+/*
  * Linux/PA-RISC Project (http://www.parisc-linux.org/)
- * 
+ *
  * System call entry code / Linux gateway page
  * Copyright (c) Matthew Wilcox 1999 <willy@bofh.ai>
  * Licensed under the GNU GPL.
@@ -85,7 +85,7 @@ lws_entry:
 	KILL_INSN
 	.endr
 
-	/* This function MUST be located at 0xe0 for glibc's threading 
+	/* This function MUST be located at 0xe0 for glibc's threading
 	mechanism to work. DO NOT MOVE THIS CODE EVER! */
 set_thread_pointer:
 	gate	.+8, %r0		/* increase privilege */
@@ -131,13 +131,13 @@ linux_gateway_entry:
 	depdi	0, 31, 32, %r23
 	depdi	0, 31, 32, %r22
 	depdi	0, 31, 32, %r21
-1:	
+1:
 #endif
 	mfctl   %cr30,%r1
 	xor     %r1,%r30,%r30                   /* ye olde xor trick */
 	xor     %r1,%r30,%r1
 	xor     %r1,%r30,%r30
-	
+
 	ldo     THREAD_SZ_ALGN+FRAME_SIZE(%r30),%r30  /* set up kernel stack */
 
 	/* N.B.: It is critical that we don't set sr7 to 0 until r30
@@ -170,7 +170,7 @@ linux_gateway_entry:
 #endif
 #endif
 	STREG	%r2,  TASK_PT_GR30(%r1)		/* ... and save it */
-	
+
 	STREG	%r20, TASK_PT_GR20(%r1)		/* Syscall number */
 	STREG	%r21, TASK_PT_GR21(%r1)
 	STREG	%r22, TASK_PT_GR22(%r1)
@@ -183,7 +183,7 @@ linux_gateway_entry:
 	STREG   %r0, TASK_PT_ORIG_R28(%r1)      /* don't prohibit restarts */
 	STREG	%r29, TASK_PT_GR29(%r1)		/* return value 1 */
 	STREG	%r31, TASK_PT_GR31(%r1)		/* preserve syscall return ptr */
-	
+
 	ldo	TASK_PT_FR0(%r1), %r27		/* save fpregs from the kernel */
 	save_fp	%r27				/* or potential task switch  */
 
@@ -208,7 +208,7 @@ linux_gateway_entry:
 	ldi	_TIF_SYSCALL_TRACE_MASK, %r19
 	and,COND(=) %r1, %r19, %r0
 	b,n	.Ltracesys
-	
+
 	/* Note!  We cannot use the syscall table that is mapped
 	nearby since the gateway page is mapped execute-only. */
 
@@ -222,10 +222,10 @@ linux_gateway_entry:
 #else
 	ldil	L%sys_call_table, %r1
 	ldo     R%sys_call_table(%r1), %r19
-#endif	
+#endif
 	comiclr,>>	__NR_Linux_syscalls, %r20, %r0
 	b,n	.Lsyscall_nosys
-	
+
 	LDREGX  %r20(%r19), %r19
 
 	/* If this is a sys_rt_sigreturn call, and the signal was received
@@ -249,7 +249,7 @@ linux_gateway_entry:
 	calls to functions external to this file must be indirect.  To
 	be safe, we apply the opposite rule to functions within this
 	file, with local labels given to them to ensure correctness. */
-	
+
 .Lsyscall_nosys:
 syscall_nosys:
 	ldil	L%syscall_exit,%r1
@@ -317,7 +317,7 @@ tracesys:
 	ldil	L%tracesys_next,%r2
 	be	R%do_syscall_trace_enter(%sr7,%r1)
 	ldo	R%tracesys_next(%r2),%r2
-	
+
 tracesys_next:
 	/* do_syscall_trace_enter either returned the syscallno, or -1L,
 	 *  so we skip restoring the PT_GR20 below, since we pulled it from
@@ -364,7 +364,7 @@ tracesys_next:
 
 	/* Do *not* call this function on the gateway page, because it
 	makes a direct call to syscall_trace. */
-	
+
 tracesys_exit:
 	ldo     -THREAD_SZ_ALGN-FRAME_SIZE(%r30),%r1      /* get task ptr */
 	LDREG	TI_TASK(%r1), %r1
@@ -466,7 +466,7 @@ lws_start:
 
 	/* Clip LWS number to a 32-bit value always */
 	depdi	0, 31, 32, %r20
-#endif	
+#endif
 
         /* Is the lws entry number valid? */
 	comiclr,>>	__NR_lws_entries, %r20, %r0
@@ -503,7 +503,7 @@ lws_exit:
 	be,n	0(%sr7, %r31)
 
 
-	
+
 	/***************************************************
 		Implementing 32bit CAS as an atomic operation:
 
@@ -518,7 +518,7 @@ lws_exit:
 		%r21 has the following meanings:
 
 		EAGAIN - CAS is busy, ldcw failed, try again.
-		EFAULT - Read or write failed.		
+		EFAULT - Read or write failed.
 
 		If debugging is enabled:
 
@@ -532,7 +532,7 @@ lws_exit:
 	****************************************************/
 
 	/* Do not enable LWS debugging */
-#define ENABLE_LWS_DEBUG 0 
+#define ENABLE_LWS_DEBUG 0
 
 	/* ELF64 Process entry path */
 lws_compare_and_swap64:
@@ -570,8 +570,8 @@ lws_compare_and_swap:
 	add	%r20, %r28, %r20
 
 # if ENABLE_LWS_DEBUG
-	/*	
-		DEBUG, check for deadlock! 
+	/*
+		DEBUG, check for deadlock!
 		If the thread register values are the same
 		then we were the one that locked it last and
 		this is a recurisve call that will deadlock.
@@ -625,12 +625,12 @@ cas_action:
 	stw	%r1, 4(%sr2,%r20)
 #endif
 	/* The load and store could fail */
-1:	ldw,ma	0(%sr3,%r26), %r28
+1:	ldw	0(%r26), %r28
 	sub,<>	%r28, %r25, %r0
-2:	stw,ma	%r24, 0(%sr3,%r26)
+2:	stw	%r24, 0(%r26)
 	/* Free lock */
 	sync
-	stw,ma	%r20, 0(%sr2,%r20)
+	stw	%r20, 0(%sr2,%r20)
 #if ENABLE_LWS_DEBUG
 	/* Clear thread register indicator */
 	stw	%r0, 4(%sr2,%r20)
@@ -641,7 +641,7 @@ cas_action:
 	b	lws_exit
 	copy	%r0, %r21
 
-3:		
+3:
 	/* Error occurred on load or store */
 	/* Free lock */
 	sync
@@ -794,30 +794,30 @@ cas2_action:
 	ldo	1(%r0),%r28
 
 	/* 8bit CAS */
-13:	ldb,ma	0(%sr3,%r26), %r29
+13:	ldb	0(%r26), %r29
 	sub,=	%r29, %r25, %r0
 	b,n	cas2_end
-14:	stb,ma	%r24, 0(%sr3,%r26)
+14:	stb	%r24, 0(%r26)
 	b	cas2_end
 	copy	%r0, %r28
 	nop
 	nop
 
 	/* 16bit CAS */
-15:	ldh,ma	0(%sr3,%r26), %r29
+15:	ldh	0(%r26), %r29
 	sub,=	%r29, %r25, %r0
 	b,n	cas2_end
-16:	sth,ma	%r24, 0(%sr3,%r26)
+16:	sth	%r24, 0(%r26)
 	b	cas2_end
 	copy	%r0, %r28
 	nop
 	nop
 
 	/* 32bit CAS */
-17:	ldw,ma	0(%sr3,%r26), %r29
+17:	ldw	0(%r26), %r29
 	sub,=	%r29, %r25, %r0
 	b,n	cas2_end
-18:	stw,ma	%r24, 0(%sr3,%r26)
+18:	stw	%r24, 0(%r26)
 	b	cas2_end
 	copy	%r0, %r28
 	nop
@@ -825,10 +825,10 @@ cas2_action:
 
 	/* 64bit CAS */
 #ifdef CONFIG_64BIT
-19:	ldd,ma	0(%sr3,%r26), %r29
+19:	ldd	0(%r26), %r29
 	sub,*=	%r29, %r25, %r0
 	b,n	cas2_end
-20:	std,ma	%r24, 0(%sr3,%r26)
+20:	std	%r24, 0(%r26)
 	copy	%r0, %r28
 #else
 	/* Compare first word */
@@ -847,7 +847,7 @@ cas2_action:
 cas2_end:
 	/* Free lock */
 	sync
-	stw,ma	%r20, 0(%sr2,%r20)
+	stw	%r20, 0(%sr2,%r20)
 	/* Enable interrupts */
 	ssm	PSW_SM_I, %r0
 	/* Return to userspace, set no error */
@@ -926,8 +926,8 @@ END(sys_call_table64)
 #endif
 
 	/*
-		All light-weight-syscall atomic operations 
-		will use this set of locks 
+		All light-weight-syscall atomic operations
+		will use this set of locks
 
 		NOTE: The lws_lock_start symbol must be
 		at least 16-byte aligned for safe use
@@ -940,7 +940,7 @@ ENTRY(lws_lock_start)
 	.rept 16
 	/* Keep locks aligned at 16-bytes */
 	.word 1
-	.word 0 
+	.word 0
 	.word 0
 	.word 0
 	.endr
@@ -948,5 +948,4 @@ END(lws_lock_start)
 	.previous
 
 .end
-
 
