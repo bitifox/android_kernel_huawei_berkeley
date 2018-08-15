@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/arm64 4.4.147 Kernel Configuration
+# Linux/arm64 4.4.148 Kernel Configuration
 #
 CONFIG_ARM64=y
 CONFIG_64BIT=y
@@ -5312,7 +5312,7 @@ CONFIG_CRYPTO_CCM=y
 CONFIG_CRYPTO_GCM=y
 # CONFIG_CRYPTO_CHACHA20POLY1305 is not set
 CONFIG_CRYPTO_SEQIV=y
-# CONFIG_CRYPTO_ECHAINIV is not set
+CONFIG_CRYPTO_ECHAINIV=y
 
 #
 # Block modes
